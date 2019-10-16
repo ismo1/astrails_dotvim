@@ -167,3 +167,12 @@ set noshowmode
 
 " uncomment to define your own bindings for tmux-vim-navigator
 "let g:tmux_navigator_no_mappings = 1
+
+"let g:SimpylFold_docstring_preview=1
+"let g:jedi#goto_command = "<leader>d"
+"let g:jedi#goto_assignments_command = "<leader>g"
+"let g:jedi#goto_definitions_command = ""
+"let g:jedi#documentation_command = "K"
+"let g:jedi#usages_command = "<leader>n"
+"let g:jedi#completions_command = "<C-Space>"
+"let g:jedi#rename_command = "<leader>r"

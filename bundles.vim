@@ -162,6 +162,16 @@ NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/unite-outline'
 NeoBundle 'ujihisa/unite-colorscheme'
 
+"Python adding
+NeoBundle 'tmhedberg/SimpylFold'
+NeoBundle 'vim-syntastic/syntastic'
+NeoBundle 'davidhalter/jedi-vim'
+
+
+NeoBundle 'vim-scripts/indentpython.vim'
+NeoBundle 'nvie/vim-flake8'
+
+
 if filereadable(expand("~/.vimrc.bundles"))
   source ~/.vimrc.bundles
 endif

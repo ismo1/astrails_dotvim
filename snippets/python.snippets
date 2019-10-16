@@ -1,0 +1,332 @@
+snippet coding "# -*- coding: utf-8 -*-" !b
+# -*- coding: utf-8 -*-
+endsnippet
+
+snippet python3 "#! python3" !b
+#!/usr/bin/env python3
+endsnippet
+
+snippet log "log = logging.getLogger(__name__)" b
+log = logging.getLogger(__name__)
+
+endsnippet
+
+snippet here "here = ...dirname(__file__)" !b
+here = os.path.abspath(os.path.dirname(__file__))
+endsnippet
+
+snippet super "Magic super()" !w
+`!p
+# Set a fallback completion first
+# snip.rv = 'super(${1:ClassName}, self).${2:method}(' <-- does not work
+snip.rv = 'super('
+import vim
+# this needs pythonhelper.vim, e.g. https://github.com/mgedmin/pythonhelper.vim
+tag = vim.eval('TagInStatusLine()')
+if tag:
+    # pythonhelper.vim's TagInStatusLine() returns '[in SomeClass.some_method (method)]'
+    # my fork of it returns '[SomeClass.some_method]'
+    # handle both
+    tag = tag.strip('[]')
+    if tag.startswith('in '):
+        tag = tag[3:]
+    tag = tag.partition(' (')[0]
+    if '.' in tag:
+        class_name, method_name = tag.split('.')[-2:]
+        snip.rv = 'super(%s, self).%s(' % (class_name, method_name)
+`$1)
+endsnippet
+
+snippet argparse "Argparse-based command-line parsing" !b
+parser = argparse.ArgumentParser(description="${1}")
+parser.add_argument("--version", action="version",
+                    version="%(prog)s version " + __version__)
+parser.add_argument("-v", "--verbose", action="store_true")
+args = parser.parse_args()
+endsnippet
+
+snippet version "Argparse-based command-line parsing for --version" !b
+parser.add_argument("--version", action="version",
+                    version="%(prog)s version " + __version__)
+endsnippet
+
+snippet classifiers "PyPI classifiers" !b
+"Programming Language :: Python :: 2.7",
+"Programming Language :: Python :: 3.5",
+"Programming Language :: Python :: 3.6",
+"Programming Language :: Python :: 3.7",
+${1:"Programming Language :: Python :: Implementation :: CPython",
+"Programming Language :: Python :: Implementation :: PyPy",}
+endsnippet
+
+snippet pypy-classifiers "PyPI classifiers for PyPy/CPython" !b
+"Programming Language :: Python :: Implementation :: CPython",
+"Programming Language :: Python :: Implementation :: PyPy",
+endsnippet
+
+snippet extras "Extras for setup.py"
+extras_require={
+    '${1}': [
+        ${0}
+    ],
+},
+endsnippet
+
+global !p
+import os
+import subprocess
+def dirname(path=''):
+    return os.path.basename(os.path.dirname(os.path.abspath(path)))
+
+def git_url(path='', default=''):
+    wd = os.path.dirname(os.path.abspath(path))
+    if not os.path.isdir(wd):
+        return default
+    with open(os.devnull, 'w') as devnull:
+        pipe = subprocess.Popen(["git", "ls-remote", "--get-url"],
+                                stdout=subprocess.PIPE,
+                                stderr=devnull,
+                                cwd=wd)
+    remote = pipe.communicate()[0].strip()
+    if not isinstance(remote, str):
+        remote = remote.decode('UTF-8', 'replace')
+    if remote.startswith('git@github.com:'):
+        remote = 'https://github.com/' + remote[len('git@github.com:'):]
+        if remote.endswith('.git'):
+            remote = remote[:-len('.git')]
+    return remote or default
+endglobal
+
+snippet setup "setup.py" !b
+#!/usr/bin/env python
+import ast
+import os
+import re
+
+from setuptools import setup, find_packages
+
+
+here = os.path.dirname(__file__)
+with open(os.path.join(here, "README.rst")) as f:
+    long_description = f.read()
+
+metadata = {}
+with open(os.path.join(here, "${8:mymodule}.py")) as f:
+    rx = re.compile("(__version__|__author__|__url__|__licence__) = (.*)")
+    for line in f:
+        m = rx.match(line)
+        if m:
+            metadata[m.group(1)] = ast.literal_eval(m.group(2))
+version = metadata["__version__"]
+
+setup(
+    name="${1:`!p snip.rv = dirname(path)`}",
+    version=${2:version},
+    author="Marius Gedminas",
+    author_email="marius@gedmin.as",
+    url="${3:`!p snip.rv = git_url(path, "https://github.com/mgedmin/...")`}",
+    description="${5:description}",
+    long_description=long_description,
+    keywords="${6}",
+    classifiers=[
+##      "Development Status :: 3 - Alpha",
+##      "Development Status :: 4 - Beta",
+##      "Development Status :: 5 - Production/Stable",
+##      "Environment :: Console",
+##      "Environment :: Console :: Curses",
+##      "Environment :: Web Environment",
+##      "Environment :: X11 Applications :: Gnome",
+##      "Environment :: X11 Applications :: GTK",
+##      "Intended Audience :: Developers",
+##      "License :: OSI Approved :: GNU General Public License (GPL)",
+##      "License :: OSI Approved :: MIT License",
+##      "Operating System :: POSIX",
+##      "Operating System :: OS Independent",
+##      "Programming Language :: Python",
+##      "Programming Language :: Python :: 2.7",
+##      "Programming Language :: Python :: 3.5",
+##      "Programming Language :: Python :: 3.6",
+##      "Programming Language :: Python :: 3.7",
+##      "Programming Language :: Python :: Implementation :: CPython",
+##      "Programming Language :: Python :: Implementation :: PyPy",
+    ],
+    license="${7:licence}",
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
+
+    py_modules=["${8:mymodule}"],
+##  packages=find_packages("src"),
+##  package_dir={"": "src/"},
+##  include_package_data=True,
+    zip_safe=False,
+    install_requires=[],
+    extras_require={},
+    entry_points={
+        "console_scripts": [
+##          "script = module:function",
+        ],
+    },
+)
+endsnippet
+
+snippet "url=" "url= in a setup.py" r
+url="${3:`!p snip.rv = git_url(path, "https://github.com/mgedmin/...")`}",
+endsnippet
+
+snippet testfile "Skeleton for a test file" !b
+import doctest
+
+
+${1}
+
+
+def test_suite():
+    return doctest.DocTestSuite()
+endsnippet
+
+global !p
+def adjust_indent(snip, indent=0):
+    snip.buffer[snip.line] = '' * indent
+    snip.cursor.set(snip.line, indent)
+
+def blank_lines_above(snip, count=2, except_at_start_of_file=0):
+    how_many = 0
+    line = snip.snippet_start[0] - 1
+    while line > 0 and snip.buffer[line] == "":
+        how_many += 1
+        line -= 1
+    line = snip.snippet_start[0]
+    if line == how_many:
+        count = except_at_start_of_file
+    while how_many < count:
+        snip.buffer[line:line] = ['']
+        how_many += 1
+    while how_many > count:
+        line -= 1
+        del snip.buffer[line]
+        how_many -= 1
+
+def blank_lines_below(snip, count=2, except_at_end_of_file=0):
+    how_many = 0
+    line = snip.snippet_end[0]
+    while line > snip.snippet_start[0] and snip.buffer[line - 1] == "":
+        line -= 1
+    while line < len(snip.buffer) and snip.buffer[line] == "":
+        how_many += 1
+        line += 1
+    if line == len(snip.buffer):
+        count = except_at_end_of_file
+    while how_many < count:
+        snip.buffer[line:line] = ['']
+        how_many += 1
+    while how_many > count:
+        line -= 1
+        del snip.buffer[line]
+        how_many -= 1
+
+def blank_lines_around(snip, count=2):
+    blank_lines_above(snip, count)
+    blank_lines_below(snip, count)
+endglobal
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_around(snip, 2)"
+snippet doctest "Skeleton for a doctest" b
+def doctest_${1:fname}():
+    """Test for ${2:$1}
+
+        >>> ${3:$1}
+
+    """
+
+endsnippet
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_around(snip, 2)"
+snippet test_suite "A test_suite() function" !b
+def test_suite():
+    return unittest.TestSuite([
+        doctest.DocTestSuite(),
+        unittest.defaultTestLoader.loadTestsFromName(__name__),
+    ])
+endsnippet
+
+snippet loader "Unit test loader"
+unittest.defaultTestLoader.loadTestsFromName(${1:__name__}),
+endsnippet
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_around(snip, 2)"
+snippet test "Skeleton for a pytest test" b
+def test_${1:fname}():
+    ${2}
+
+endsnippet
+
+snippet pdb "pdb.set_trace()"
+import pdb; pdb.set_trace()
+endsnippet
+
+snippet ipdb "ipdb.set_trace()" !b
+import ipdb; ipdb.set_trace()
+endsnippet
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_around(snip, 2)"
+snippet testcase "TestCase" !b
+class Test${1:ClassName}(unittest.TestCase):
+
+    def test_${2:method}(self):
+        ${0:pass}
+endsnippet
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_around(snip, 2)"
+snippet class "Skeleton for a class definition" b
+class ${1:ClassName}:
+    ${0}
+
+endsnippet
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_around(snip, 2)"
+snippet deff "Skeleton for a function definition" b
+def ${1:fname}(${2}):
+    ${0}
+
+endsnippet
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_around(snip, 1)"
+snippet defm "Skeleton for a method definition" b
+    def ${1:fname}(self${2}):
+        ${0}
+
+endsnippet
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_above(snip, 2)"
+snippet ifmain "if __name__ == '__main__':" !b
+if __name__ == "__main__":
+    main()
+endsnippet
+
+pre_expand "adjust_indent(snip, 0)"
+post_expand "blank_lines_around(snip, 2)"
+snippet factory "SQLAlchemyModel Factory subclass" !b
+class ${1:Something}Factory(SQLAlchemyModelFactory):
+    class Meta:
+        model = ${2:$1}
+        sqlalchemy_session = session
+
+endsnippet
+
+snippet assertRaisesRegex "assertRaisesRegex for Python 2 vs 3" b
+# Avoid DeprecationWarning for assertRaisesRegexp on Python 3 while
+# coping with Python 2 not having the Regex spelling variant
+assertRaisesRegex = getattr(unittest.TestCase, "assertRaisesRegex",
+                            unittest.TestCase.assertRaisesRegexp)
+endsnippet
+
+snippet self "self.foo = foo" b
+self.${1} = ${2:$1}
+endsnippet
