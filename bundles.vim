@@ -171,6 +171,9 @@ NeoBundle 'davidhalter/jedi-vim'
 NeoBundle 'vim-scripts/indentpython.vim'
 NeoBundle 'nvie/vim-flake8'
 
+"ALE
+NeoBundle 'w0rp/ale'
+
 
 if filereadable(expand("~/.vimrc.bundles"))
   source ~/.vimrc.bundles
@@ -179,4 +182,3 @@ endif
 call neobundle#end()
 
 filetype plugin indent on
-

@@ -176,3 +176,12 @@ set noshowmode
 "let g:jedi#usages_command = "<leader>n"
 "let g:jedi#completions_command = "<C-Space>"
 "let g:jedi#rename_command = "<leader>r"
+
+"yamllint and ALE
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+set foldlevelstart=20
+
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_sign_error = '✘'
+let g:ale_sign_warning = '⚠'
+let g:ale_lint_on_text_changed = 'never'
