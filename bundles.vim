@@ -173,6 +173,9 @@ NeoBundle 'nvie/vim-flake8'
 
 "ALE
 NeoBundle 'w0rp/ale'
+" folds
+NeoBundle 'pedrohdz/vim-yaml-folds'
+NeoBundle 'nelstrom/vim-markdown-folding'
 
 
 if filereadable(expand("~/.vimrc.bundles"))
